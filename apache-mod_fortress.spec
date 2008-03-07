@@ -6,7 +6,7 @@
 Summary:	DSO module for the apache Web server
 Name:		apache-%{mod_name}
 Version:	1.0
-Release:	%mkrel 6
+Release:	%mkrel 7
 Group:		System/Servers
 License:	GPL
 URL:		http://www.spunge.org/~io/fortress.html
