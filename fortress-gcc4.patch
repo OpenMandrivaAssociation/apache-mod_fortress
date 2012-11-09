@@ -1,0 +1,22 @@
+Index: mod_fortress.c
+===================================================================
+--- mod_fortress.c
++++ mod_fortress.c	2005-08-13 23:31:37.000000000 +0200
+@@ -340,7 +340,7 @@
+ static const char *fortress_config_logfile(cmd_parms *parms, void *mconfig, const char *arg)
+ {
+ 	LogOps *cls = (LogOps *)ap_get_module_config(parms->server->module_config, &fortress_module);
+-	(const char *)cls->logname = arg;
++	cls->logname =  (char*) arg;
+ 	return NULL;
+ }
+ 
+@@ -348,7 +348,7 @@
+ static const char *fortress_config_log_string(cmd_parms *parms, void *mconfig, const char *arg)
+ {
+ 	LogOps *cls = (LogOps *)ap_get_module_config(parms->server->module_config, &fortress_module);
+-	(const char *)cls->format_string = arg;
++	cls->format_string = (char*)arg;
+ 	return NULL;
+ }
+ 

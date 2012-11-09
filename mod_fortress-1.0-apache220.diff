@@ -1,0 +1,184 @@
+diff -Naur fortress/mod_fortress.c fortress.oden/mod_fortress.c
+--- fortress/mod_fortress.c	2005-12-18 21:10:58.000000000 +0100
++++ fortress.oden/mod_fortress.c	2005-12-18 21:09:13.000000000 +0100
+@@ -116,8 +116,8 @@
+ 
+ static const char *get_hin( request_rec *r, char *hin ) {
+ 	
+-	if( ap_table_get( r->headers_in, hin ) ) {
+-		return (char *)ap_table_get( r->headers_in, hin );
++	if( apr_table_get( r->headers_in, hin ) ) {
++		return (char *)apr_table_get( r->headers_in, hin );
+ 	}
+ 
+ 	return " ";
+@@ -158,7 +158,7 @@
+ //parse request uri from httpd.conf
+ void parse_uri( char *uri, char *dst ) {
+ 	int i;
+-	ap_snprintf( dst, 100, "%s", uri );
++	apr_snprintf( dst, 100, "%s", uri );
+ 	for( i = 0; i < (int) strlen(dst); i++ ) {
+ 		if( dst[i] == ';') {
+ 			dst[i] = '\0';
+@@ -177,7 +177,7 @@
+ 		dst[0] = '\0';
+ 	}
+ 
+-	ap_snprintf(dst, BUFFER, "%s", p + 1);
++	apr_snprintf(dst, BUFFER, "%s", p + 1);
+ 	
+ 	for(i = 0; i < (int) strlen(dst); i++) {
+ 		if(dst[i] == '[') {
+@@ -205,7 +205,7 @@
+ 		dst[0] = '\0';
+ 	}
+ 	
+-	ap_snprintf( dst, 10, "%s", start + 1 );
++	apr_snprintf( dst, 10, "%s", start + 1 );
+ 	dst[strlen(dst) - 1] = '\0';
+ 
+ }	
+@@ -254,10 +254,10 @@
+ 
+ 	char temp[BUFFER];
+ 	char mystring[BUFFER];
+-	ap_snprintf( mystring, BUFFER, "%s", str );
++	apr_snprintf( mystring, BUFFER, "%s", str );
+ 	mystring[pos] = '\0';
+-  ap_snprintf( temp, BUFFER, "%s%s%s", mystring, in, &str[pos + 3] );
+-	ap_snprintf( str, BUFFER, "%s", temp );
++  apr_snprintf( temp, BUFFER, "%s%s%s", mystring, in, &str[pos + 3] );
++	apr_snprintf( str, BUFFER, "%s", temp );
+ }
+ 
+ static const char *fortress_config_cmd_tag( cmd_parms *parms, void *mconfig, const char *arg ) {
+@@ -292,7 +292,7 @@
+ 			continue;
+ 		}
+ 
+-		*(char **)ap_push_array(cfg->scripts) = apr_pstrdup(parms->pool, line);
++		*(char **)apr_array_push(cfg->scripts) = apr_pstrdup(parms->pool, line);
+ 	}
+ 
+ #else
+@@ -307,7 +307,7 @@
+   while(!feof(sf) && fgets(line, BUFFER, sf)) {
+       if (!*line || *line == '#')
+           continue;
+-      *(char **)ap_push_array(cfg->scripts) = ap_pstrdup(parms->pool, line);
++      *(char **)apr_array_push(cfg->scripts) = ap_pstrdup(parms->pool, line);
+ 	}
+ #endif
+ 	  return NULL;
+@@ -378,7 +378,7 @@
+ 	
+ 	//append to the log file the current date&time
+ 	strcat(fname, ".");
+-	strcat(fname, (char *) ap_psprintf(p, "%04d%02d%02d%02d%02d%02d", 1900+tm->tm_year,
++	strcat(fname, (char *) apr_psprintf(p, "%04d%02d%02d%02d%02d%02d", 1900+tm->tm_year,
+ 			                                                tm->tm_mon+1,
+ 			                                                tm->tm_mday,
+ 			                                                tm->tm_hour,
+@@ -406,7 +406,7 @@
+ 	of.mode = S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH;
+ #endif
+ 	strcat(fname, ".");
+-	strcat(fname, (char *) ap_psprintf(p, "%04d%02d%02d%02d%02d%02d", 1900+tm->tm_year,
++	strcat(fname, (char *) apr_psprintf(p, "%04d%02d%02d%02d%02d%02d", 1900+tm->tm_year,
+ 		                                          tm->tm_mon+1,							                                                                        tm->tm_mday,					                                                                        tm->tm_hour,					                                                                        tm->tm_min,						                                                                        tm->tm_sec ));
+ 		
+ 	if(fname != '\0') {
+@@ -501,7 +501,7 @@
+ 			if(strstr(strwdel(orig->uri), pops.ParsedURI) || 
+ 			   strstr(strwdel(orig->uri), fort_strupper(pops.ParsedURI))) {
+ 				char wc[BUFFER];
+-				ap_snprintf( wc, BUFFER, "[*] Wildcarded entry follows, signature : %s\n", scr[i] );
++				apr_snprintf( wc, BUFFER, "[*] Wildcarded entry follows, signature : %s\n", scr[i] );
+ 				len = strlen(wc);
+ #ifdef STANDARD20_MODULE_STUFF
+ 		apr_file_write(cls->log_fd, wc, &len );
+@@ -520,7 +520,7 @@
+ 			wildcarded = 0;
+ 
+  			//parse the format string
+-			ap_snprintf( fs, BUFFER, "%s", cls->format_string );
++			apr_snprintf( fs, BUFFER, "%s", cls->format_string );
+ 			for( j = 0; j < (int) strlen(fs); j++ ) {
+ 				if( fs[j] == '%' && fs[j+1] == 'R' )  { //request based
+ 					if( fs[j+2] == 'u' ) {
+@@ -576,7 +576,7 @@
+ 					}
+ 		
+ 					if( fs[j+2] == 'p' ) {
+-						replace( fs, (char *)ap_psprintf(r->pool, "%u", r->server->port), j ); 	
++						replace( fs, (char *)apr_psprintf(r->pool, "%u", r->server->port), j ); 	
+ 					}
+ 			
+ 					if( fs[j+2] == 'v' ) {
+@@ -592,33 +592,33 @@
+ 				if( fs[j] == '%' && fs[j+1] == 'T' ) {  //time based
+ 		
+ 					if( fs[j+2] == 's' ) {
+-						replace( fs, (char *) ap_psprintf( r->pool, "%02d", tm->tm_sec ), j );
++						replace( fs, (char *) apr_psprintf( r->pool, "%02d", tm->tm_sec ), j );
+ 					}
+ 					
+ 					if( fs[j+2] == 'm' ) {
+-						replace( fs, (char *) ap_psprintf( r->pool, "%02d", tm->tm_min ), j );
++						replace( fs, (char *) apr_psprintf( r->pool, "%02d", tm->tm_min ), j );
+ 					}
+ 		
+ 					if( fs[j+2] == 'h' ) {
+-						replace( fs, (char *) ap_psprintf(r->pool, "%02d", tm->tm_hour ), j );
++						replace( fs, (char *) apr_psprintf(r->pool, "%02d", tm->tm_hour ), j );
+ 					}
+ 					
+ 					if( fs[j+2] == 'd' ) {
+-						replace( fs, (char *) ap_psprintf( r->pool, "%02d", tm->tm_mday ), j );
++						replace( fs, (char *) apr_psprintf( r->pool, "%02d", tm->tm_mday ), j );
+ 					}
+ 				
+ 					if( fs[j+2] == 'M' ) {
+-						replace( fs, (char *) ap_psprintf( r->pool, "%02d", tm->tm_mon+1 ), j );
++						replace( fs, (char *) apr_psprintf( r->pool, "%02d", tm->tm_mon+1 ), j );
+ 					}
+ 			
+ 					if( fs[j+2] == 'y' ) {
+-						replace( fs, (char *) ap_psprintf( r->pool, "%2d", tm->tm_year+1900 ), j );
++						replace( fs, (char *) apr_psprintf( r->pool, "%2d", tm->tm_year+1900 ), j );
+ 					}
+ 		
+ 				}	
+ 	
+ 				if( fs[j] == '%' && fs[j+1] == 'H' ) {
+-					ap_snprintf( temp, BUFFER, "%s", &fs[j+3] );
++					apr_snprintf( temp, BUFFER, "%s", &fs[j+3] );
+ 					
+ 					for( i = 0; i < (int) strlen(fs); i++ ) {
+ 						if( temp[i] == ']' ) {
+@@ -627,10 +627,10 @@
+ 						}
+ 					}
+ 
+-					ap_snprintf( temp2, BUFFER, "%s", fs );
++					apr_snprintf( temp2, BUFFER, "%s", fs );
+ 					temp2[j] = '\0';
+-					ap_snprintf( buf, BUFFER, "%s%s%s", temp2, (char *)get_hin(orig, temp), &temp2[j + 4 + strlen(temp)] );
+-					ap_snprintf( fs, BUFFER, "%s", buf );
++					apr_snprintf( buf, BUFFER, "%s%s%s", temp2, (char *)get_hin(orig, temp), &temp2[j + 4 + strlen(temp)] );
++					apr_snprintf( fs, BUFFER, "%s", buf );
+ 		
+ 				}
+ 
+diff -Naur fortress/mod_fortress.h fortress.oden/mod_fortress.h
+--- fortress/mod_fortress.h	2005-12-18 21:10:58.000000000 +0100
++++ fortress.oden/mod_fortress.h	2005-12-18 21:06:00.000000000 +0100
+@@ -37,7 +37,6 @@
+ #include "http_log.h"
+ #ifdef STANDARD20_MODULE_STUFF
+ #include "apr_strings.h"
+-#include "apr_compat.h"
+ #include "ap_config.h"
+ #include "apr_lib.h"
+ #include "apr_optional.h"
