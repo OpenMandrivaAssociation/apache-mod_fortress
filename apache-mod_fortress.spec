@@ -9,7 +9,7 @@ Version:	1.0
 Release:	%mkrel 15
 Group:		System/Servers
 License:	GPL
-URL:		http://www.spunge.org/~io/fortress.html
+URL:		https://www.spunge.org/~io/fortress.html
 Source0:	%{mod_name}-%{version}.tar.bz2
 Source1:	%{mod_conf}.bz2
 Source2:	mod_fortress_signatures.conf.bz2
